@@ -4,6 +4,19 @@ import mongoose from "mongoose";
 import msgError from "../utilities/msgError.js";
 import requireBody from "../middleware/requireBody.js";
 import { isValidId, toNumber } from "../utilities/functions.js";
+import si from "systeminformation";
+
+
+type Drives =  {
+    fs: string,
+    type: string,
+    size: number,
+    used: number,
+    available: number,
+    use: number,
+    mount: string,
+    rw: boolean
+}
 
 
 const deviceRouter = express.Router();
@@ -12,12 +25,53 @@ deviceRouter
     .route("/")
 
     .post(
-        requireBody(["userId", "name", "storageTotalGB"]),
+        requireBody(["userId", "q"]),
         (async (req, res, next) => {
+            const {userId, q} = req.body
             try {
-                if (!isValidId(String(req.body.userId))) return next(msgError(400, "Invalid userId"));
+                if (!isValidId(String(userId))) return next(msgError(400, "Invalid userId"));
+                const getDriveInfo = (drives:Drives[]) => {
+                    return drives.map((drive) => ({
+                        fs: drive.fs,
+                        type: drive.type,
+                        mount: drive.mount,
+                        sizeMB: parseFloat((drive.size / 1e6).toFixed(2)),
+                        usedMB: parseFloat((drive.used / 1e6).toFixed(2)),
+                        availableMB: parseFloat((drive.available / 1e6).toFixed(2)),
+                        usePercent: drive.use,
+                        rw: drive.rw,
+                    }))
+                }
+                let deviceData;
+                const useSystemInfo = q.toLowerCase() === "yes";
+    
+                if (useSystemInfo) {
+                    const [osInfo, fsSize] = await Promise.all([
+                        si.osInfo(),
+                        si.fsSize(),
+                    ]);
 
-                const created = await Device.create(req.body)
+                    // normalize rw: boolean: null -> false
+                    const normalizedDrives: Drives[] = fsSize.map((d) => ({
+                        ...d,
+                        rw: d.rw ?? false,
+                    }));
+                    deviceData = {
+                        userId,
+                        name: osInfo.hostname,
+                        drives: getDriveInfo(normalizedDrives),
+                        status: "online",
+                    };
+                } else {
+                    const { name, drives } = req.body;
+                    if (!name) return next(msgError(400, "name is required when not using system info"));
+                    if (!drives || !Array.isArray(drives) || drives.length === 0)
+                        return next(msgError(400, "drives array is required when not using system info"));
+    
+                    deviceData = { userId, name, drives, status: "online" };
+                }
+
+                const created = await Device.create(deviceData)
                 res.status(201).json(created)
             } catch (err: any) {
                 const error = err
