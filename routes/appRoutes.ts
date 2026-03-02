@@ -3,11 +3,9 @@ import App from "../models/appSchema.js";
 import msgError from "../utilities/msgError.js";
 import mongoose from "mongoose";
 import requireBody from "../middleware/requireBody.js";
+import { isValidId } from "../utilities/functions.js";
 
-
-const isValidId = (id: string) => mongoose.Types.ObjectId.isValid(id)
 const appRouter = express.Router();
-
 
 appRouter
     .route("/")

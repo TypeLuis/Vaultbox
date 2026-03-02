@@ -36,7 +36,10 @@ const deviceSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-})
+},
+
+    { timestamps: true }
+)
 
 // Virtual — total across all drives in GB
 deviceSchema.virtual("storageTotalGB").get(function () {
