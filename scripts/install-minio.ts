@@ -1,5 +1,5 @@
 import si from "systeminformation";
-import { execSync, spawn } from "child_process";
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import https from "https";
@@ -56,17 +56,15 @@ function downloadFile(url: string, dest: string): Promise<void> {
 async function installLinux(arch: string) {
     log("Detected: Linux");
 
-    // pick binary for arm or amd64
     const binaryArch = arch.includes("arm") || arch.includes("aarch") ? "arm64" : "amd64";
     const url = `https://dl.min.io/server/minio/release/linux-${binaryArch}/minio`;
     const dest = "/usr/local/bin/minio";
 
     info("Downloading MinIO binary...");
     await downloadFile(url, dest);
-
     run(`chmod +x ${dest}`, "Made MinIO executable");
 
-    // create a dedicated user & service
+    // create dedicated user
     try {
         execSync("id -u minio-user", { stdio: "ignore" });
         info("minio-user already exists, skipping...");
@@ -74,47 +72,52 @@ async function installLinux(arch: string) {
         run("useradd -r minio-user -s /sbin/nologin", "Created minio-user");
     }
 
+    // create data directory
     const dataDir = "/var/lib/minio/data";
     if (!fs.existsSync(dataDir)) {
         run(`mkdir -p ${dataDir}`, `Created data dir: ${dataDir}`);
         run(`chown -R minio-user:minio-user /var/lib/minio`, "Set ownership");
     }
 
-    // write systemd service
-    const service = `[Unit]
-Description=MinIO Object Storage
-Documentation=https://docs.min.io
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-User=minio-user
-Group=minio-user
-ProtectProc=invisible
-EnvironmentFile=-/etc/default/minio
-ExecStartPre=/bin/bash -c "if [ -z \\"${MINIO_VOLUMES}\\" ]; then echo \\"Variable MINIO_VOLUMES not set in /etc/default/minio\\"; exit 1; fi"
-ExecStart=/usr/local/bin/minio server $MINIO_OPTS $MINIO_VOLUMES
-Restart=always
-LimitNOFILE=65536
-TasksMax=infinity
-TimeoutStopSec=infinity
-SendSIGKILL=no
-
-[Install]
-WantedBy=multi-user.target
-`;
+    // ✅ use a regular string (not template literal) so $MINIO_VOLUMES etc.
+    //    are NOT interpolated by TypeScript — they stay as shell variables
+    const service = [
+        "[Unit]",
+        "Description=MinIO Object Storage",
+        "Documentation=https://docs.min.io",
+        "Wants=network-online.target",
+        "After=network-online.target",
+        "",
+        "[Service]",
+        "User=minio-user",
+        "Group=minio-user",
+        "ProtectProc=invisible",
+        "EnvironmentFile=-/etc/default/minio",
+        'ExecStartPre=/bin/bash -c "if [ -z \\"$MINIO_VOLUMES\\" ]; then echo \\"Variable MINIO_VOLUMES not set in /etc/default/minio\\"; exit 1; fi"',
+        "ExecStart=/usr/local/bin/minio server $MINIO_OPTS $MINIO_VOLUMES",
+        "Restart=always",
+        "LimitNOFILE=65536",
+        "TasksMax=infinity",
+        "TimeoutStopSec=infinity",
+        "SendSIGKILL=no",
+        "",
+        "[Install]",
+        "WantedBy=multi-user.target",
+    ].join("\n");
 
     fs.writeFileSync("/etc/systemd/system/minio.service", service);
     log("Created systemd service");
 
-    // write default env file if not present
+    // write /etc/default/minio if not present
     const envFile = "/etc/default/minio";
     if (!fs.existsSync(envFile)) {
-        const envContent = `MINIO_VOLUMES="/var/lib/minio/data"
-MINIO_OPTS="--console-address :9001"
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
-`;
+        const envContent = [
+            'MINIO_VOLUMES="/var/lib/minio/data"',
+            'MINIO_OPTS="--console-address :9001"',
+            "MINIO_ROOT_USER=minioadmin",
+            "MINIO_ROOT_PASSWORD=minioadmin",
+        ].join("\n") + "\n";
+
         fs.writeFileSync(envFile, envContent);
         log("Created /etc/default/minio with default credentials");
         warn("Change MINIO_ROOT_USER and MINIO_ROOT_PASSWORD before going to production!");
@@ -184,7 +187,6 @@ MINIO_BUCKET=vaultbox
 MINIO_REGION=us-east-1
 `;
 
-    // update .env
     if (fs.existsSync(envPath)) {
         const current = fs.readFileSync(envPath, "utf-8");
         if (!current.includes("MINIO_ENDPOINT")) {
@@ -197,7 +199,6 @@ MINIO_REGION=us-east-1
         warn(".env not found. Run `npm run env` first to create it.");
     }
 
-    // update .env.example
     if (fs.existsSync(envExamplePath)) {
         const current = fs.readFileSync(envExamplePath, "utf-8");
         if (!current.includes("MINIO_ENDPOINT")) {
@@ -207,7 +208,7 @@ MINIO_REGION=us-east-1
     }
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
     console.log("\n🚀 MinIO Installer\n");
