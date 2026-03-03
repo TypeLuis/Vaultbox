@@ -1,4 +1,26 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
+
+export type DriveSchema = {
+    fs: string,
+    type: string,
+    mount: string,
+    sizeMB: number,
+    usedMB: number,
+    availableMB: number,
+    usePercent: number,
+    rw: boolean
+}
+
+export type DeviceSchema = {
+    _id: Types.ObjectId
+    userId: Types.ObjectId,
+    name: string,
+    os: string,
+    real: string,
+    drives: DriveSchema[],
+    status: string,
+    createdAt: string
+}
 
 export const driveSchema = new mongoose.Schema({
     fs: { type: String, required: true },        // e.g. 'overlay', '/dev/sdb1'
@@ -9,7 +31,7 @@ export const driveSchema = new mongoose.Schema({
     availableMB: { type: Number, required: true },
     usePercent: { type: Number, required: true }, // e.g. 1.4
     rw: { type: Boolean, default: false },        // read/write flag
-}, { _id: false });
+}, { _id: false }); // id false because it's taking from the drives key in deviceSchema
 
 const deviceSchema = new mongoose.Schema({
     userId: {
@@ -20,6 +42,16 @@ const deviceSchema = new mongoose.Schema({
     },
     name: {
         type: String,
+        required: true
+    },
+
+    os: {
+        type: String,
+        required: true
+    },
+
+    real: {
+        type: Boolean,
         required: true
     },
 
@@ -38,7 +70,11 @@ const deviceSchema = new mongoose.Schema({
     },
 },
 
-    { timestamps: true }
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    }
 )
 
 // Virtual — total across all drives in GB

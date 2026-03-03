@@ -1,111 +1,190 @@
 @baseUrl = http://localhost:3040
-@json = application/json
 
-POST {{baseUrl}}/api/user/
-Content-Type: {{json}}
+# -------------------------
+# 1) REGISTER (returns token)
+# -------------------------
 
-{
-    "name": "Luis",
-    "email": "test@test.com",
-    "password": "testingpassword"
-}
-
-###
-POST {{baseUrl}}/api/auth/
-Content-Type: {{json}}
+# @name register
+POST {{baseUrl}}/api/users
+Content-Type: application/json
 
 {
-    "email": "test@test.com",
-    "password": "testingpassword"
-}
-
-
-###
-# Register an admin user
-# NOTE: your schema defaults isAdmin=false, so you MUST set isAdmin=true in Mongo manually
-# (MongoDB Compass / shell) after creating this user.
-POST {{baseUrl}}/api/user
-Content-Type: {{json}}
-
-{
-  "name": "Admin User",
-  "email": "admin.user@example.com",
+  "name": "Test User2",
+  "email": "test2@example.com",
   "password": "password123"
 }
 
+###
+# Token from register response (VSCode REST Client)
+# @token = {{register.response.body.token}}
+
+# -------------------------
+# 2) LOGIN (optional, also returns token)
+# -------------------------
 
 ###
-# Login (normal user) -> copy token from response into @token below
+# @name login
 POST {{baseUrl}}/api/auth
-Content-Type: {{json}}
+Content-Type: application/json
 
 {
-  "email": "test.user@example.com",
+  "email": "test2@example.com",
   "password": "password123"
 }
 
-###
-# Login (admin user) -> copy token from response into @adminToken below
-POST {{baseUrl}}/api/auth
-Content-Type: {{json}}
-
-{
-  "email": "admin.user@example.com",
-  "password": "password123"
-}
+# @token = {{login.response.body.token}}
 
 ###
-# Set tokens here after login
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjk5NGI3ZmZkMDg0ODk5NWI0ZDA3MDY1In0sImlhdCI6MTc3MTM2NzA3MCwiZXhwIjoxNzcxMzc3ODcwfQ._NG7gYNNqher89tcrJXeetFGKFeBlY9yj213EQ9YVYM
-@adminToken = REPLACE_WITH_ADMIN_TOKEN
+# If you prefer login token instead of register token, swap:
+# @token = {{login.response.body.token}}
 
-###
-# Get current user (protected) - uses x-auth-token header
+# -------------------------
+# 3) WHO AM I (requires token)
+# -------------------------
+
+# @name me
 GET {{baseUrl}}/api/auth
-x-auth-token: {{token}}
-Accept: {{json}}
+x-auth-token:  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjlhNjBlNTNiMTA0NDI5MDUzYzZkNDRjIn0sImlhdCI6MTc3MjUxMTgyOSwiZXhwIjoxNzcyNTIyNjI5fQ.5h80fH51V_KLpYXRQfKtTAnPkfITZWFgwQ4V4cbMeOc
 
 ###
-# Admin route (protected + adminAuth)
-# Expected:
-# - 200 "you are an admin!!" if admin
-# - 403 if not admin
-GET {{baseUrl}}/api/auth/admin
-x-auth-token: {{adminToken}}
-Accept: text/plain
+@userId = {{me.response.body._id}}
 
-###
-# Admin route with NON-admin token (should 403)
-GET {{baseUrl}}/api/auth/admin
-x-auth-token: {{token}}
-Accept: text/plain
+# =========================
+# DEVICES
+# =========================
 
-###
-# Validation test: login with invalid email
-POST {{baseUrl}}/api/auth
-Content-Type: {{json}}
+# -------------------------
+# Create Device (manual mode)
+# Your device route expects body.userId and body.q
+# -------------------------
+
+# @name createDevice
+POST {{baseUrl}}/api/device?q=no
+Content-Type: application/json
 
 {
-  "email": "not-an-email",
-  "password": "password123"
+  "userId": "{{userId}}",
+  "name": "VaultBox Main",
+  "drives": [
+    {
+      "fs": "/dev/sda1",
+      "type": "ext4",
+      "mount": "/",
+      "sizeMB": 500000,
+      "usedMB": 200000,
+      "availableMB": 300000,
+      "usePercent": 40,
+      "rw": true
+    }
+  ]
 }
 
 ###
-# Validation test: login missing password
-POST {{baseUrl}}/api/auth
-Content-Type: {{json}}
+
+
+# @name createDevice
+POST {{baseUrl}}/api/device?q=yes
+Content-Type: application/json
 
 {
-  "email": "test.user@example.com"
+  "userId": "{{userId}}"
 }
 
 ###
-# Auth test: protected route with NO token (should 401)
-GET {{baseUrl}}/api/auth
-Accept: {{json}}
+@deviceId = {{createDevice.response.body._id}}
+
+# -------------------------
+# Get Devices (filter by userId)
+# NOTE: your deviceRoutes has a small bug using filter.deviceId instead of filter.userId.
+# If it returns empty, that’s why.
+# -------------------------
+GET {{baseUrl}}/api/device?userId={{userId}}
 
 ###
-# Auth test: protected route with BAD token (should 401)
-GET {{baseUrl}}/api/auth
-x-auth-token: not.a.real.token
-Accept: {{json}}
+# Update Device
+PUT {{baseUrl}}/api/device/{{deviceId}}
+Content-Type: application/json
+
+{
+  "name": "VaultBox Updated"
+}
+
+###
+# Delete Device
+DELETE {{baseUrl}}/api/device/{{deviceId}}
+
+# =========================
+# APPS
+# =========================
+
+###
+# @name createApp
+POST {{baseUrl}}/api/app
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "deviceId": "{{deviceId}}",
+  "slug": "jellyfin",
+  "name": "Jellyfin",
+  "port": 8096,
+  "description": "Media server"
+}
+
+###
+@appId = {{createApp.response.body._id}}
+
+###
+# List Apps for device
+GET {{baseUrl}}/api/app?userId={{userId}}&deviceId={{deviceId}}
+
+###
+# Update App (status etc.)
+PATCH {{baseUrl}}/api/app/{{appId}}
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "status": "running"
+}
+
+###
+# Delete App
+DELETE {{baseUrl}}/api/app/{{appId}}?userId={{userId}}
+
+
+###
+# =========================
+# FILES (MinIO-backed)
+# IMPORTANT:
+# Your fileRoutes currently accept userId from:
+# - req.user.id (ONLY if you add auth middleware to /api/file)
+# - OR query/body userId (current fallback)
+# So we pass userId in query for now.
+# =========================
+
+# @name uploadFile
+POST {{baseUrl}}/api/file/upload?deviceId={{deviceId}}&userId={{userId}}
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+Hello from VaultBox!
+--MyBoundary--
+
+###
+@fileId = {{uploadFile.response.body._id}}
+
+###
+# List Files
+GET {{baseUrl}}/api/file?deviceId={{deviceId}}&userId={{userId}}
+
+###
+# Download File
+GET {{baseUrl}}/api/file/{{fileId}}/download?userId={{userId}}
+
+###
+# Delete File
+DELETE {{baseUrl}}/api/file/{{fileId}}?userId={{userId}}

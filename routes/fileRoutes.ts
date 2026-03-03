@@ -106,7 +106,7 @@ import express, { type RequestHandler } from "express";
 import crypto from "crypto";
 import path from "path";
 import File from "../models/fileSchema.js";
-import Device from "../models/deviceSchema.js";
+import Device, { type DeviceSchema } from "../models/deviceSchema.js";
 import msgError from "../utilities/msgError.js";
 import { isValidId } from "../utilities/functions.js";
 import { upload } from "../config/upload.js";
@@ -196,6 +196,14 @@ fileRouter.post(
 
       await assertOwnsDevice(String(userId), deviceId);
 
+      // .lean() makes it return a plain JS object.
+      const deviceObj = await Device.findById(deviceId).lean<DeviceSchema>();
+      if (!deviceObj) {
+        return next(msgError(404, "Device not found"));
+      }
+      const mount = deviceObj.drives?.[0]?.mount;
+      if (!mount) return next(msgError(400, "Missing mount"));
+
       if (!req.file) return next(msgError(400, "No file uploaded (field name must be 'file')"));
 
       const original = req.file.originalname as string;
@@ -208,6 +216,7 @@ fileRouter.post(
       const filenameStored = ext ? `${storedBase}${ext}` : storedBase;
 
       const objectKey = buildObjectKey(String(userId), deviceId, filenameStored);
+      //   const storagePath = `minio://${MINIO_BUCKET}/${objectKey}`;
       const storagePath = `minio://${MINIO_BUCKET}/${objectKey}`;
 
       const buffer: Buffer = req.file.buffer;

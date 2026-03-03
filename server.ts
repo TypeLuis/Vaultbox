@@ -73,7 +73,7 @@ app.get('/', (_req, res, _next) => {
     res.send('Hello!')
 })
 
-app.use('/api/user', userRoutes)
+app.use('/api/users', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/device', deviceRouter)
 app.use('/api/app', appRouter)

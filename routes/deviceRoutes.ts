@@ -25,9 +25,10 @@ deviceRouter
     .route("/")
 
     .post(
-        requireBody(["userId", "q"]),
+        requireBody(["userId"]),
         (async (req, res, next) => {
-            const { userId, q } = req.body
+            const q = String(req.query.q || "");
+            const { userId } = req.body
             try {
                 if (!isValidId(String(userId))) return next(msgError(400, "Invalid userId"));
                 const getDriveInfo = (drives: Drives[]) => {
@@ -51,6 +52,7 @@ deviceRouter
                         si.fsSize(),
                     ]);
 
+                    const platform = osInfo.platform.toLowerCase()
                     // normalize rw: boolean: null -> false
                     const normalizedDrives: Drives[] = fsSize.map((d) => ({
                         ...d,
@@ -59,16 +61,19 @@ deviceRouter
                     deviceData = {
                         userId,
                         name: osInfo.hostname,
+                        os: platform,
+                        real: true,
                         drives: getDriveInfo(normalizedDrives),
                         status: "online",
                     };
                 } else {
                     const { name, drives } = req.body;
+                    const [platform, real] = ["windows", false]
                     if (!name) return next(msgError(400, "name is required when not using system info"));
                     if (!drives || !Array.isArray(drives) || drives.length === 0)
                         return next(msgError(400, "drives array is required when not using system info"));
 
-                    deviceData = { userId, name, drives, status: "online" };
+                    deviceData = { userId, name, os: platform, real, drives, status: "online" };
                 }
 
                 const created = await Device.create(deviceData)

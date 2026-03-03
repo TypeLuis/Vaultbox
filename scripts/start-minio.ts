@@ -39,6 +39,10 @@ if (password.length < 8) {
     process.exit(1);
 }
 
+function pathExists(path: string): boolean {
+    return fs.existsSync(path);
+  }
+
 // ─── Find MinIO binary dynamically ───────────────────────────────────────────
 
 function findMinioWindows(): string | null {
@@ -96,6 +100,10 @@ async function main() {
     const osInfo = await si.osInfo();
     const platform = osInfo.platform.toLowerCase();
     const isWindows = platform === "win32" || platform === "windows";
+    const directory = env.DIRECTORY
+    // const isMac = platform === "darwin"
+    const pathExist = pathExists('/mnt/data')
+    const directoryExist = directory && pathExists(directory)
 
     console.log(`\n🚀 Starting MinIO on ${osInfo.distro || osInfo.platform}...`);
 
@@ -111,7 +119,14 @@ async function main() {
     console.log(`   Console: http://localhost:9001`);
     console.log(`   User:    ${user}\n`);
 
-    const dataDir = isWindows ? "C:\\minio\\data" : "/var/lib/minio/data";
+    // const dataDir = isWindows ? "C:\\minio\\data" : "/var/lib/minio/data";
+
+    let dataDir:string
+    
+    if(directoryExist) dataDir = path.join(directory, "minio-data")
+    else if(isWindows) dataDir = "C:\\minio\\data";
+    else if(pathExist) dataDir = path.join("/mnt/data", 'minio-data')
+    else dataDir = path.join(process.cwd(), "minio-data");
 
     // ensure data dir exists
     if (!fs.existsSync(dataDir)) {
@@ -135,3 +150,5 @@ main().catch((e) => {
     console.error(`\n❌ ${e.message || e}`);
     process.exit(1);
 });
+
+
