@@ -10,15 +10,12 @@ import { minio, MINIO_BUCKET } from "../config/minioClient.js";
 
 const fileRouter = express.Router();
 
-/**
- * If you already have JWT middleware that sets req.user, use that.
- * Otherwise (like your current device routes), pass userId in query/body.
- */
+
 function getRequesterUserId(req: any): string | null {
   // Prefer auth middleware
   if (req.user?.id) return String(req.user.id);
 
-  // Fallbacks to match your current pattern
+  // Fallbacks
   if (req.body?.userId) return String(req.body.userId);
   if (req.query?.userId) return String(req.query.userId);
 
@@ -31,17 +28,15 @@ async function assertOwnsDevice(userId: string, deviceId: string) {
   if (String(device.userId) !== String(userId)) throw msgError(403, "Forbidden");
 }
 
-/**
- * Helper: build a safe key that won’t collide and is future-proof.
- */
+
+//  Helper: build a safe key that won’t collide and is future-proof.
 function buildObjectKey(userId: string, deviceId: string, storedName: string) {
   // You can change this later without breaking old files because objectKey is stored in DB.
   return `user/${userId}/device/${deviceId}/files/${storedName}`;
 }
 
-/**
- * Optional checksum (SHA256) for integrity tracking.
- */
+
+//  * Optional checksum (SHA256) for integrity tracking.
 function sha256(buffer: Buffer): string {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
