@@ -26,7 +26,7 @@ appRouter
             }
         }) as RequestHandler)
 
-    .get(auth(async (req, res, next) => {
+    .get(auth,(async (req, res, next) => {
         try {
             const { deviceId, status, q, port } = req.query
 
