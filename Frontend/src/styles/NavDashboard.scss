@@ -1,0 +1,146 @@
+
+@keyframes logo-float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-3px) rotate(1deg);
+    }
+}
+
+
+// ─── Tokens ──────────────────────────────────────────────────────────────────
+
+$teal: #2dd4bf;
+$bg-sidebar: #0a0f1a;
+$border: rgba(#2dd4bf, 0.1);
+$text: #cbd5e1;
+$text-dim: #4a6a7a;
+
+
+
+// ─── Sidebar ─────────────────────────────────────────────────────────────────
+
+.dashboard__sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 220px;
+    flex-shrink: 0;
+    background: $bg-sidebar;
+    border-right: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    z-index: 10;
+}
+
+.dashboard__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px 24px;
+    border-bottom: 1px solid $border;
+}
+
+.dashboard__logo-svg {
+    width: 40px;
+    height: 40px;
+    animation: logo-float 4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.dashboard__brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dashboard__brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: -0.3px;
+
+    .accent {
+        color: $teal;
+    }
+}
+
+.dashboard__brand-sub {
+    font-size: 9px;
+    color: $text-dim;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+// Nav
+.dashboard__nav {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 2px;
+    flex: 1;
+}
+
+.dashboard__nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: $text-dim;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+        background: rgba($teal, 0.06);
+        color: $text;
+    }
+
+    &.active {
+        background: rgba($teal, 0.1);
+        color: $teal;
+        border: 1px solid rgba($teal, 0.2);
+    }
+}
+
+.dashboard__nav-icon {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+}
+
+// Sidebar stats
+.dashboard__sidebar-stats {
+    padding: 16px 20px;
+    border-top: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dashboard__sidebar-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+
+    .label {
+        color: $text-dim;
+    }
+
+    .value {
+        color: $text;
+        font-weight: 600;
+    }
+
+    .value.accent {
+        color: $teal;
+    }
+}

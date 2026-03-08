@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth} from '../context/authcontext';
 import { SignUpStyles, css } from '../styles/SignUpStyles';
 import type { FormData } from '../utilities/types/types';
