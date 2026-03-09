@@ -1,0 +1,294 @@
+// SetupPage.module.scss
+// Dark tech theme — matches VaultBox aesthetic
+
+$bg: #0a0e14;
+$surface: #0f1520;
+$surface2: #141d2b;
+$border: rgba(0, 230, 200, 0.12);
+$teal: #00e6c3;
+$teal-dim: rgba(0, 230, 195, 0.6);
+$teal-glow: rgba(0, 230, 195, 0.08);
+$text: #c8d8e8;
+$text-dim: #5a7080;
+$font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+$font-display: 'DM Sans', 'Sora', sans-serif;
+
+.page {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: $bg;
+  font-family: $font-display;
+  color: $text;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Subtle dot-grid background
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(0, 230, 195, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+// Teal ambient glow
+.glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 200, 170, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  padding: 4rem 2rem;
+
+  @media (max-width: 600px) {
+    padding: 2rem 1.25rem;
+  }
+}
+
+// ── Header ──────────────────────────────────────────────
+.header {
+  margin-bottom: 3rem;
+}
+
+.badge {
+  display: inline-block;
+  font-family: $font-mono;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: $teal;
+  border: 1px solid $border;
+  border-radius: 2px;
+  padding: 0.25rem 0.6rem;
+  margin-bottom: 1.25rem;
+  background: $teal-glow;
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  letter-spacing: -0.03em;
+  color: #e8f4f0;
+}
+
+.accent {
+  color: $teal;
+}
+
+.subtitle {
+  font-size: 0.975rem;
+  color: $text-dim;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 480px;
+}
+
+// ── OS Tabs ──────────────────────────────────────────────
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid $border;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.tab {
+  font-family: $font-mono;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: $text-dim;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.65rem 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 150ms ease, border-color 150ms ease;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: $text;
+  }
+}
+
+.tabActive {
+  color: $teal !important;
+  border-bottom-color: $teal;
+}
+
+.tabIcon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.shellBadge {
+  margin-left: auto;
+  font-family: $font-mono;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: $text-dim;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid $border;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+// ── Steps ────────────────────────────────────────────────
+.steps {
+  background: $surface;
+  border: 1px solid $border;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.step {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid $border;
+  transition: background 150ms ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: $surface2;
+  }
+}
+
+.stepMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.stepNumber {
+  font-family: $font-mono;
+  font-size: 0.65rem;
+  color: $teal-dim;
+  letter-spacing: 0.08em;
+  min-width: 22px;
+}
+
+.stepLabel {
+  font-size: 0.78rem;
+  color: $text-dim;
+  letter-spacing: 0.02em;
+}
+
+.codeBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 4px;
+  padding: 0.55rem 0.85rem;
+  font-family: $font-mono;
+  font-size: 0.85rem;
+}
+
+.prompt {
+  color: $teal-dim;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.command {
+  color: #e0f0ea;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+}
+
+.comment {
+  font-family: $font-mono;
+  font-size: 0.72rem;
+  color: $text-dim;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 1rem;
+
+  @media (max-width: 520px) {
+    display: none;
+  }
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: $text-dim;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 150ms ease, border-color 150ms ease;
+  margin-left: 0.25rem;
+
+  &:hover {
+    color: $teal;
+    border-color: $border;
+  }
+}
+
+.copied {
+  color: $teal !important;
+}
+
+// ── Footer ───────────────────────────────────────────────
+.footer {
+  font-size: 0.82rem;
+  color: $text-dim;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.footerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $teal;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px $teal;
+}
+
+.url {
+  font-family: $font-mono;
+  font-size: 0.8rem;
+  color: $teal-dim;
+  background: $teal-glow;
+  border: 1px solid $border;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}

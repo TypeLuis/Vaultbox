@@ -15,16 +15,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TypeLuis/Vaultbox-Capstone.git"
+    "url": "git+https://github.com/TypeLuis/Vaultbox.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/TypeLuis/Vaultbox-Capstone/issues"
+    "url": "https://github.com/TypeLuis/Vaultbox/issues"
   },
-  "homepage": "https://github.com/TypeLuis/Vaultbox-Capstone#readme",
+  "homepage": "https://github.com/TypeLuis/Vaultbox#readme",
   "devDependencies": {
     "concurrently": "^9.2.1"
   },

@@ -6,6 +6,7 @@ import RequireGuest from './routes/RequireGuest';
 import Dashboard from './pages/Dashboard';
 import RootRedirect from './routes/RootRedirect';
 import DeployedPage from './pages/DeployedPage';
+import SetupPage from './pages/SetupPage';
 
 function App() {
   const selfHosted = import.meta.env.VITE_SELF_HOSTED === "";
@@ -34,7 +35,7 @@ function App() {
         ) : (
           <>
             <Route path="*" element={<DeployedPage />} />
-            <Route path="/start" element={(<>hi</>)} />
+            <Route path="/start" element={<SetupPage />} />
           </>
         )}
 

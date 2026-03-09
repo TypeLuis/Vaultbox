@@ -106,6 +106,7 @@ async function installWindows() {
     log("Detected: Windows");
 
     // Download the MongoDB zip and extract mongod.exe into %USERPROFILE%\mongodb\bin
+    // C:\Users\user\mongodb\bin\mongod.exe
     const mongoDir = path.join(process.env.USERPROFILE || "C:\\Users\\Public", "mongodb");
     const binDir = path.join(mongoDir, "bin");
     const mongodExe = path.join(binDir, "mongod.exe");

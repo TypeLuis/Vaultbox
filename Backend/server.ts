@@ -6,7 +6,7 @@ import logReq from "./middleware/logReq.js";
 import connectDB from "./database/conn.js";
 import userRoutes from './routes/userRoutes.js'
 import authRoutes from './routes/authRoutes.js'
-import { PORT } from "./utilities/config.js";
+import { HOST_DOMAIN, PORT } from "./utilities/config.js";
 import cors from "cors";
 import helmet from "helmet";
 import deviceRouter from "./routes/deviceRoutes.js";
@@ -44,7 +44,13 @@ async function waitForMinio(attempts = 20, delay = 1500) {
 
 // Middleware
 app.use(helmet()); // Adds security-related HTTP headers to help protect the app from common web vulnerabilities
-app.use(cors()) // Allows controlled cross-origin requests so frontend apps on other domains can access this API
+
+app.use(cors({
+    // only vite application can accesss api
+    origin : ['http://localhost:5173', HOST_DOMAIN],
+    credentials : true // allow the req.header and req.body. without only the header
+})) // Allows controlled cross-origin requests so frontend apps on other domains can access this API
+
 app.use(express.json()) // allows to use json like getting req.body
 app.use(logReq);
 

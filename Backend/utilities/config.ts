@@ -9,7 +9,9 @@ if (!process.env.JWTSECRET) {
 if (!process.env.MONGODB_URI) {
     throw new Error("MONGODB_URI is not defined in environment variables");
 }
-  
+
+export const HOST_DOMAIN = process.env.HOST_DOMAIN ? process.env.HOST_DOMAIN : ""
+
 export const JWT_SECRET = process.env.JWTSECRET;
 
 export const MONGODB_URI = process.env.MONGODB_URI

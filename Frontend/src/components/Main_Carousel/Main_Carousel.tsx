@@ -220,27 +220,27 @@ const Main_Carousel = () => {
 
                 <div className={`${classes.first_img} ${classes.img_div}`}>
                     <img
-                        src="https://images.unsplash.com/photo-1648765822429-130e147ca93b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                        src="/images/HomeScreen1.png"
                         className={classes.slider_image}
                         alt="Slide 1"
                     />
                     <div className={classes.text_div}>
-                        <h2>The Test Title</h2>
-                        <p>Shop the Title</p>
-                        <Link to="/start">Shop now</Link>
+                        <h2>Own Your Data</h2>
+                        <p>A private cloud that runs in your home — not someone else's server.</p>
+                        <Link to="/start">Start Setup</Link>
                     </div>
                 </div>
 
                 <div className={`${classes.second_img} ${classes.img_div}`}>
                     <img
-                        src="https://images.unsplash.com/photo-1648684784133-eb5d0787ab9b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                        src="/images/HomeScreen2.png"
                         className={classes.slider_image}
                         alt="Slide 2"
                     />
                     <div className={classes.text_div}>
-                        <h2>The Test Title</h2>
-                        <p>Shop the Title</p>
-                        <Link to="/start">Shop now</Link>
+                        <h2>Self-Hosting Made Easy</h2>
+                        <p>VaultBox installs everything automatically in minutes.</p>
+                        <Link to="/start">Start Setup</Link>
                     </div>
                 </div>
 
