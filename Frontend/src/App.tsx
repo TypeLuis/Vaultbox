@@ -1,13 +1,13 @@
 import './App.scss';
 import { Routes, Route } from 'react-router-dom';
-import ProtectedRoutes from './components/ProtectedRoutes';
+import ProtectedRoutes from './routes/ProtectedRoutes';
 import AuthPage from './pages/AuthPage';
-import RequireGuest from './components/RequireGuest';
+import RequireGuest from './routes/RequireGuest';
 import Dashboard from './pages/Dashboard';
-import RootRedirect from './components/RootRedirect';
+import RootRedirect from './routes/RootRedirect';
 
 function App() {
-
+  const selfHosted = import.meta.env.VITE_SELF_HOSTED === "true";
   return (
     <>
       {/* <h2>My App</h2> */}
@@ -16,20 +16,27 @@ function App() {
         {/* Root redirect */}
         <Route path="/" element={<RootRedirect />} />
 
+        {selfHosted ? (
+          <>
+            {/* Guest-only routes */}
+            <Route element={<RequireGuest />}>
+              <Route path="/auth" element={<AuthPage />} />
+            </Route>
 
-        {/* Guest-only routes */}
-        <Route element={<RequireGuest />}>
-          <Route path='/auth' element={<AuthPage />} />
-        </Route>
+            {/* Logged-in only routes */}
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+          </>
+        ) : (
+          <>
+            <Route path="/auth" element={(<>hi</>)} />
+            <Route path="/dashboard" element={(<>hi</>)} />
+          </>
+        )}
 
 
-        {/* Logged-in only routes */}
-        <Route element={<ProtectedRoutes />}>
-          <Route path='/dashboard' element={<Dashboard />} />
-        </Route>
-
-
-      </Routes>
+      </Routes >
     </>
   );
 }
