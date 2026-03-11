@@ -22,7 +22,7 @@ const steps: Record<OS, Step[]> = {
         { label: 'Enter the directory', command: 'cd Vaultbox', comment: '# navigate in' },
         { label: 'Install dependencies', command: 'npm install', comment: '# install packages' },
         { label: 'Install Services', command: 'npm run initialize', comment: '# Installs needed services and setup env' },
-        { label: 'Start the dev server', command: 'sudo npm run dev', comment: '# launch' },
+        { label: 'Start the dev server', command: 'npm run dev', comment: '# launch' },
     ],
     linux: [
         { label: 'Clone the repository', command: 'git clone https://github.com/TypeLuis/Vaultbox.git', comment: '# clone repo' },
