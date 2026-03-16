@@ -3,6 +3,7 @@ import "../styles/Dashboard.scss";
 import { DevicesPage } from "./Devicepage";
 import NavDashboard from "../components/NavDashboard/NavDashboard";
 import { FilesPage } from "./FilePage";
+import SettingsPage from "./SettingsPage";
 
 
 export type Page = "devices" | "files" | "apps" | "settings";
@@ -35,7 +36,8 @@ export default function Dashboard() {
       {activePage === "devices" && <DevicesPage />}
       {activePage === "files" && <FilesPage />}
       {activePage === "apps" && <ComingSoon label="Apps" icon="⊞" />}
-      {activePage === "settings" && <ComingSoon label="Settings" icon="⚙" />}
+      {/* {activePage === "settings" && <ComingSoon label="Settings" icon="⚙" />} */}
+      {activePage === "settings" && <SettingsPage />}
     </div>
   );
 }
